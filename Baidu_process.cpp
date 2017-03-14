@@ -27,6 +27,8 @@ FILE* fp1;
 string filename = "E:/grade3/baidu_pic/9.jpg";
 string ann_xml_path = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/ann_xml.xml";
 Ptr<SVM> model = StatModel::load<SVM>("E:/grade3/baidu_pic/plate/qualified/svm.xml");
+Ptr<ANN_MLP> bp = StatModel::load<ANN_MLP>("E:/grade3/baidu_pic/plate/qualified/ann.xml");
+int jud_mod = 2;
 int loc_model = 1;
 double pt_rt = 0.0, pf_rt = 0.0, pt_rf = 0.0, pf_rf = 0.0,
 total_found = 0.0, total_plate = 0.0, total_reco_rate = 0.0, total_pic_num = 0.0,
@@ -38,11 +40,11 @@ double found_statistic[100];
 
 void getHOGFeatures(const Mat& image, Mat& features) {
 	//HOG descripter
-	HOGDescriptor * hog = new HOGDescriptor(cvSize(128, 64), cvSize(16, 16), cvSize(8, 8), cvSize(8, 8), 3);  //these parameters work well
+	HOGDescriptor * hog = new HOGDescriptor(cvSize(32, 32), cvSize(16, 16), cvSize(8, 8), cvSize(8, 8), 3);  //these parameters work well
 	std::vector<float> descriptor;
 
 	// resize input image to (128,64) for compute
-	Size dsize = Size(128, 64);
+	Size dsize = Size(32, 32);
 	Mat trainImg = Mat(dsize, CV_32S);
 	resize(image, trainImg, dsize);
 
@@ -65,15 +67,15 @@ Mat compare_amplify(Mat img)
 	Mat mat = img;
 	//namedWindow("original");
 	//imshow("original", mat);
-	Mat mergeImg;//ºÏ²¢ºóµÄÍ¼Ïñ  
-				 //ÓÃÀ´´æ´¢¸÷Í¨µÀÍ¼Æ¬µÄÏòÁ¿  
+	Mat mergeImg;//åˆå¹¶åçš„å›¾åƒ  
+				 //ç”¨æ¥å­˜å‚¨å„é€šé“å›¾ç‰‡çš„å‘é‡  
 	vector<Mat> splitBGR(mat.channels());
-	//·Ö¸îÍ¨µÀ£¬´æ´¢µ½splitBGRÖĞ  
+	//åˆ†å‰²é€šé“ï¼Œå­˜å‚¨åˆ°splitBGRä¸­  
 	split(mat, splitBGR);
-	//¶Ô¸÷¸öÍ¨µÀ·Ö±ğ½øĞĞÖ±·½Í¼¾ùºâ»¯  
+	//å¯¹å„ä¸ªé€šé“åˆ†åˆ«è¿›è¡Œç›´æ–¹å›¾å‡è¡¡åŒ–  
 	for (int i = 0; i<mat.channels(); i++)
 		equalizeHist(splitBGR[i], splitBGR[i]);
-	//ºÏ²¢Í¨µÀ  
+	//åˆå¹¶é€šé“  
 	merge(splitBGR, mergeImg);
 
 	//namedWindow("equalizeHist");
@@ -155,7 +157,13 @@ float judge_which(Mat src)
 	//Ptr<ANN_MLP> bp = ANN_MLP::create();
 	//bp = ml::ANN_MLP::load<ml::ANN_MLP>(ann_xml_path);
 	float jud = -1;
-	jud = model->predict(src3);
+	if (jud_mod == 1)jud=model->predict(src3);
+	if (jud_mod == 2)
+	{
+		Mat output((int)1, 2, CV_32F);
+		bp->predict(src3, output);
+		jud = output.at<float>(0, 0) > output.at<float>(0, 1) ? -1.0 : 1.0;
+	}
 	//cout << "judge is" << jud << " " << endl;
 	//waitKey(0);
 	return jud;
@@ -196,7 +204,7 @@ void close_GetPlate(Mat srcImage,vector<Rect>& pitches_list)
 {
 	Mat operate;
 	
-	cvtColor(srcImage, operate, CV_BGR2GRAY); // ×ªÎª»Ò¶ÈÍ¼Ïñ 
+	cvtColor(srcImage, operate, CV_BGR2GRAY); // è½¬ä¸ºç°åº¦å›¾åƒ 
 	//imshow("operate", operate);
 	Mat ret;
 	//threshold(operate, ret, 20, 255, CV_THRESH_BINARY);
@@ -209,7 +217,7 @@ void close_GetPlate(Mat srcImage,vector<Rect>& pitches_list)
 	Mat candidates;
 	for (size_t i = 0; i != plate_contours.size(); ++i)
 	{
-		// Çó½â×îĞ¡Íâ½ç¾ØĞÎ  
+		// æ±‚è§£æœ€å°å¤–ç•ŒçŸ©å½¢  
 		Rect rect = boundingRect(plate_contours[i]);
 		int height = rect.height;
 		int width = rect.width;
@@ -228,32 +236,32 @@ void close_GetPlate(Mat srcImage,vector<Rect>& pitches_list)
 
 std::vector<cv::Rect> mserGetPlate(cv::Mat srcImage)
 {
-	// HSV¿Õ¼ä×ª»»
+	// HSVç©ºé—´è½¬æ¢
 	cv::Mat gray, gray_neg;
 	cv::Mat hsi;
 	cv::cvtColor(srcImage, hsi, CV_BGR2HSV);
-	// Í¨µÀ·ÖÀë
+	// é€šé“åˆ†ç¦»
 	std::vector<cv::Mat> channels;
 	cv::split(hsi, channels);
-	// ÌáÈ¡hÍ¨µÀ
+	// æå–hé€šé“
 	gray = channels[1];
-	// »Ò¶È×ª»» 
+	// ç°åº¦è½¬æ¢ 
 	cv::cvtColor(srcImage, gray, CV_BGR2GRAY);
-	// È¡·´Öµ»Ò¶È
+	// å–åå€¼ç°åº¦
 	gray_neg = 255 - gray;
 	std::vector<std::vector<cv::Point> > regContours;
 	std::vector<std::vector<cv::Point> > charContours;
 
-	// ´´½¨MSER¶ÔÏó
+	// åˆ›å»ºMSERå¯¹è±¡
 	cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(step_l, 20, 600, thres_s, 0.3);
 	cv::Ptr<cv::MSER> mesr2 = cv::MSER::create(step_l, 20, 600, thres_s, 0.3);
 
 
 	std::vector<cv::Rect> bboxes1;
 	std::vector<cv::Rect> bboxes2;
-	// MSER+ ¼ì²â
+	// MSER+ æ£€æµ‹
 	mesr1->detectRegions(gray, regContours, bboxes1);
-	// MSER-²Ù×÷
+	// MSER-æ“ä½œ
 	mesr2->detectRegions(gray_neg, charContours, bboxes2);
 
 	cv::Mat mserMapMat = cv::Mat::zeros(srcImage.size(), CV_8UC1);
@@ -261,7 +269,7 @@ std::vector<cv::Rect> mserGetPlate(cv::Mat srcImage)
 
 	for (int i = (int)regContours.size() - 1; i >= 0; i--)
 	{
-		// ¸ù¾İ¼ì²âÇøÓòµãÉú³Émser+½á¹û
+		// æ ¹æ®æ£€æµ‹åŒºåŸŸç‚¹ç”Ÿæˆmser+ç»“æœ
 		const std::vector<cv::Point>& r = regContours[i];
 		for (int j = 0; j < (int)r.size(); j++)
 		{
@@ -269,10 +277,10 @@ std::vector<cv::Rect> mserGetPlate(cv::Mat srcImage)
 			mserMapMat.at<unsigned char>(pt) = 255;
 		}
 	}
-	// MSER- ¼ì²â
+	// MSER- æ£€æµ‹
 	for (int i = (int)charContours.size() - 1; i >= 0; i--)
 	{
-		// ¸ù¾İ¼ì²âÇøÓòµãÉú³Émser-½á¹û
+		// æ ¹æ®æ£€æµ‹åŒºåŸŸç‚¹ç”Ÿæˆmser-ç»“æœ
 		const std::vector<cv::Point>& r = charContours[i];
 		for (int j = 0; j < (int)r.size(); j++)
 		{
@@ -280,32 +288,32 @@ std::vector<cv::Rect> mserGetPlate(cv::Mat srcImage)
 			mserNegMapMat.at<unsigned char>(pt) = 255;
 		}
 	}
-	// mser½á¹ûÊä³ö
+	// mserç»“æœè¾“å‡º
 	cv::Mat mserResMat;
-	// mser+Óëmser-Î»Óë²Ù×÷
+	// mser+ä¸mser-ä½ä¸æ“ä½œ
 	mserResMat = mserMapMat & mserNegMapMat;
 	cv::imshow("mserMapMat", mserMapMat);
 	cv::imshow("mserNegMapMat", mserNegMapMat);
 	cv::imshow("mserResMat", mserResMat);
-	// ±Õ²Ù×÷Á¬½Ó·ìÏ¶
+	// é—­æ“ä½œè¿æ¥ç¼éš™
 	cv::Mat mserClosedMat;
 	cv::morphologyEx(mserResMat, mserClosedMat,
 		cv::MORPH_CLOSE, cv::Mat::ones(3, 1, CV_8UC1));
 	cv::imshow("mserClosedMat", mserClosedMat);
-	// Ñ°ÕÒÍâ²¿ÂÖÀª
+	// å¯»æ‰¾å¤–éƒ¨è½®å»“
 	std::vector<std::vector<cv::Point> > plate_contours;
 	cv::findContours(mserClosedMat, plate_contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-	// ºòÑ¡³µÅÆÇøÓòÅĞ¶ÏÊä³ö
+	// å€™é€‰è½¦ç‰ŒåŒºåŸŸåˆ¤æ–­è¾“å‡º
 	std::vector<cv::Rect> candidates;
 	for (size_t i = 0; i != plate_contours.size(); ++i)
 	{
-		// Çó½â×îĞ¡Íâ½ç¾ØĞÎ
+		// æ±‚è§£æœ€å°å¤–ç•ŒçŸ©å½¢
 		cv::Rect rect = cv::boundingRect(plate_contours[i]);
-		// ¿í¸ß±ÈÀı
+		// å®½é«˜æ¯”ä¾‹
 		double wh_ratio = rect.width / double(rect.height);
 		double areaa = rect.width * double(rect.height);
 
-		// ²»·ûºÏ³ß´çÌõ¼şÅĞ¶Ï
+		// ä¸ç¬¦åˆå°ºå¯¸æ¡ä»¶åˆ¤æ–­
 		if (wh_ratio > 0.2&&areaa>20)
 			candidates.push_back(rect);
 
@@ -316,6 +324,9 @@ std::vector<cv::Rect> mserGetPlate(cv::Mat srcImage)
 void judge_cal(Mat ori,Rect rect, vector<Rect> rect_list)
 {
 	float jud = judge_which(ori(rect));
+	
+	
+	
 	int found = 0;
 	//cout<<"judge is "<<jud<<endl;
 	for (int jk = 0; jk < rect_list.size(); jk++)
