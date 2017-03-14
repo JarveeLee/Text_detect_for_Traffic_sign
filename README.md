@@ -1,8 +1,8 @@
-#Jarvee
+# Jarvee
 
-#Text detect for Traffic sign.
+# Text detect for Traffic sign.
 
-##This repository contains two code file.
+## This repository contains two code file.
 
 The Baidu_process.cpp is to test this program on labeled images,show the localization precision,recall and f1_score.
 
@@ -14,13 +14,13 @@ These code can be run on VS2015+OPENCV 3.1+win10,that is my own enviroment.
 
 I have to admit that these code are bad arranged.So I must briefly explain it.
 
-##Baidu_process.cpp run in this order:
+## Baidu_process.cpp run in this order:
 
 1,MSER (to get higher cover rate I use connect_pix in the code instead) extracts lots of pitches.
 
 2,After filtering by geometric features,the left pitches are judged by SVM by their HOG features to eventually decided which pitches contains exact one char.
 
-##SVM_train.cpp run in this order:
+## SVM_train.cpp run in this order:
 
 1,You need a data.txt file to get img data and rect data with in which contains exact one char.
 For example 
@@ -35,8 +35,8 @@ top='104' left='31' width='12' height='11'
 
 4,The same method to read test set,and finally exam the SVM. 
 
-#Do you think it is easy?Ah I believe it as well
+# Do you think it is easy?Ah I believe it as well
 
 And this easy algorithm can get 0.85 pitches coverage(the result of connect_pix).But the performance of SVM is very bad,recall 0.97 but precision 0.39.Obviously that means inadequate negative samples.I just store code here in case of PC crashing.....
 tr
-#If you want to run the code ,remember to change lots of absolute path by your own,and switch train_mod to 2 to use ann judgement.
+# If you want to run the code ,remember to change lots of absolute path by your own,and switch train_mod to 2 to use ann judgement.
