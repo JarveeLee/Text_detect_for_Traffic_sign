@@ -24,24 +24,6 @@ FILE* fp;
 FILE* fp1;
 FILE* fp2;
 
-string ann_xml = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/ann_xml.xml";
-char* chars_folder_ = "E:/grade3/baidu_map_ann_train/ann_train/ann";
-string expIm = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/digits/0/4-3.jpg";
-
-string chaos_path = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/jiejing_files";
-string path_dig_folder = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/digits";
-string path_chi_folder = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/chinese_character";
-char* train_chaos_path = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/chaos_train.txt";
-char* test_chaos_path= "E:/grade3/baidu_map_ann_train/ann_train/ann_data/chaos_test.txt";
-char* train_chi_path = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/chinese_character_train.txt";
-char* test_chi_path = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/chinese_character_test.txt";
-char* train_dig_path = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/digits_train.txt";
-char* test_dig_path = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/digits_test.txt";
-
-string path_data= "E:/grade3/baidu_map_ann_train/ann_train/ann_data/data.txt";
-string path_data_labels = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/data_labels.txt";
-string path_data_test = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/data_test.txt";
-string path_data_labels_test = "E:/grade3/baidu_map_ann_train/ann_train/ann_data/data_labels_test.txt";
 
 
 std::vector<std::string> GetListFiles(const std::string& path, const std::string & exten, bool addPath)
@@ -152,15 +134,15 @@ Mat compare_amplify(Mat img)
 	Mat mat = img;
 	//namedWindow("original");
 	//imshow("original", mat);
-	Mat mergeImg;//ºÏ²¢ºóµÄÍ¼Ïñ  
-			 //ÓÃÀ´´æ´¢¸÷Í¨µÀÍ¼Æ¬µÄÏòÁ¿  
+	Mat mergeImg;//åˆå¹¶åçš„å›¾åƒ  
+			 //ç”¨æ¥å­˜å‚¨å„é€šé“å›¾ç‰‡çš„å‘é‡  
 	vector<Mat> splitBGR(mat.channels());
-	//·Ö¸îÍ¨µÀ£¬´æ´¢µ½splitBGRÖĞ  
+	//åˆ†å‰²é€šé“ï¼Œå­˜å‚¨åˆ°splitBGRä¸­  
 	split(mat, splitBGR);
-	//¶Ô¸÷¸öÍ¨µÀ·Ö±ğ½øĞĞÖ±·½Í¼¾ùºâ»¯  
+	//å¯¹å„ä¸ªé€šé“åˆ†åˆ«è¿›è¡Œç›´æ–¹å›¾å‡è¡¡åŒ–  
 	for (int i = 0; i<mat.channels(); i++)
 		equalizeHist(splitBGR[i], splitBGR[i]);
-	//ºÏ²¢Í¨µÀ  
+	//åˆå¹¶é€šé“  
 	merge(splitBGR, mergeImg);
 
 	//namedWindow("equalizeHist");
@@ -245,9 +227,9 @@ vector<Mat> clustering(Mat src, int ClusterNum,int mod)
 		}
 	}
 	//output the average value (clustering center)
-	//¼ÆËãËùµÃµÄ¾ÛÀàÖĞĞÄÓëkmeanº¯ÊıÖĞcenterµÄµÚÒ»ÁĞÒ»ÖÂ£¬
-	//ÒÔºó¿ÉÒÔÊ¡È¥ºóÃæÕâĞ©·±¸´µÄ¼ÆËã£¬Ö±½ÓÀûÓÃcenter,
-	//µ«ÊÇÈÔÈ»²»Àí½âcenterµÄ³ıµÚÒ»ÁĞÒÔÍâµÄÆäËûÁĞËù´ú±íµÄÒâË¼
+	//è®¡ç®—æ‰€å¾—çš„èšç±»ä¸­å¿ƒä¸kmeanå‡½æ•°ä¸­centerçš„ç¬¬ä¸€åˆ—ä¸€è‡´ï¼Œ
+	//ä»¥åå¯ä»¥çœå»åé¢è¿™äº›ç¹å¤çš„è®¡ç®—ï¼Œç›´æ¥åˆ©ç”¨center,
+	//ä½†æ˜¯ä»ç„¶ä¸ç†è§£centerçš„é™¤ç¬¬ä¸€åˆ—ä»¥å¤–çš„å…¶ä»–åˆ—æ‰€ä»£è¡¨çš„æ„æ€
 	double dis = INT_MAX;
 	int pt = 0;
 	for (i = 0; i < ClusterNum; i++)
@@ -315,13 +297,13 @@ void close_GetPlate(Mat srcImage, Mat ori)
 	
 	Mat operate;
 	srcImage.convertTo(operate, CV_8UC3,255.0);
-	cvtColor(operate, operate, CV_BGR2GRAY); // ×ªÎª»Ò¶ÈÍ¼Ïñ  
+	cvtColor(operate, operate, CV_BGR2GRAY); // è½¬ä¸ºç°åº¦å›¾åƒ  
 	threshold(operate, operate, 50, 255, CV_THRESH_BINARY);
 	operate = 255 - operate;
 	//imshow("operate",operate);
 	//waitKey(0);
 	//return operate;
-	//±Õ²Ù×÷Á¬Í¨¿éÇø
+	//é—­æ“ä½œè¿é€šå—åŒº
 	Mat ret;
 	int ssii = 1;
 	//morphologyEx(operate, ret, MORPH_CLOSE, Mat::ones(ssii, ssii, CV_8UC1));
@@ -329,13 +311,13 @@ void close_GetPlate(Mat srcImage, Mat ori)
 	imshow("ret", ret);
 	vector<vector<Point> > plate_contours;
 	findContours(ret, plate_contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-	// ºòÑ¡³µÅÆÇøÓòÅĞ¶ÏÊä³ö  
+	// å€™é€‰è½¦ç‰ŒåŒºåŸŸåˆ¤æ–­è¾“å‡º  
 	//imshow("blu", ret_blu);
 	Mat candidates;
 	//if (plate_contours.size() > 3)return;
 	for (size_t i = 0; i != plate_contours.size(); ++i)
 	{
-		// Çó½â×îĞ¡Íâ½ç¾ØĞÎ  
+		// æ±‚è§£æœ€å°å¤–ç•ŒçŸ©å½¢  
 		Rect rect = boundingRect(plate_contours[i]);
 		int height = rect.height;
 		int width = rect.width;
@@ -367,32 +349,32 @@ void close_GetPlate(Mat srcImage, Mat ori)
 Mat mserFeature(cv::Mat srcImage)
 {
 	
-	// HSV¿Õ¼ä×ª»»
+	// HSVç©ºé—´è½¬æ¢
 	cv::Mat gray, gray_neg;
 	cv::Mat hsi;
 	cv::cvtColor(srcImage, hsi, CV_BGR2HSV);
-	// Í¨µÀ·ÖÀë
+	// é€šé“åˆ†ç¦»
 	std::vector<cv::Mat> channels;
 	cv::split(hsi, channels);
-	// ÌáÈ¡hÍ¨µÀ
+	// æå–hé€šé“
 	gray = channels[1];
-	// »Ò¶È×ª»» 
+	// ç°åº¦è½¬æ¢ 
 	cv::cvtColor(srcImage, gray, CV_BGR2GRAY);
-	// È¡·´Öµ»Ò¶È
+	// å–åå€¼ç°åº¦
 	gray_neg = 255 - gray;
 	std::vector<std::vector<cv::Point> > regContours;
 	std::vector<std::vector<cv::Point> > charContours;
 
-	// ´´½¨MSER¶ÔÏó
+	// åˆ›å»ºMSERå¯¹è±¡
 	cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(2, 1, 300, 0.001, 0.1);
 	cv::Ptr<cv::MSER> mesr2 = cv::MSER::create(2, 1, 300, 0.001, 0.1);
 
 
 	std::vector<cv::Rect> bboxes1;
 	std::vector<cv::Rect> bboxes2;
-	// MSER+ ¼ì²â
+	// MSER+ æ£€æµ‹
 	mesr1->detectRegions(gray, regContours, bboxes1);
-	// MSER-²Ù×÷
+	// MSER-æ“ä½œ
 	mesr2->detectRegions(gray_neg, charContours, bboxes2);
 
 	cv::Mat mserMapMat = cv::Mat::zeros(srcImage.size(), CV_8UC1);
@@ -400,7 +382,7 @@ Mat mserFeature(cv::Mat srcImage)
 
 	for (int i = (int)regContours.size() - 1; i >= 0; i--)
 	{
-		// ¸ù¾İ¼ì²âÇøÓòµãÉú³Émser+½á¹û
+		// æ ¹æ®æ£€æµ‹åŒºåŸŸç‚¹ç”Ÿæˆmser+ç»“æœ
 		const std::vector<cv::Point>& r = regContours[i];
 		for (int j = 0; j < (int)r.size(); j++)
 		{
@@ -408,10 +390,10 @@ Mat mserFeature(cv::Mat srcImage)
 			mserMapMat.at<unsigned char>(pt) = 255;
 		}
 	}
-	// MSER- ¼ì²â
+	// MSER- æ£€æµ‹
 	for (int i = (int)charContours.size() - 1; i >= 0; i--)
 	{
-		// ¸ù¾İ¼ì²âÇøÓòµãÉú³Émser-½á¹û
+		// æ ¹æ®æ£€æµ‹åŒºåŸŸç‚¹ç”Ÿæˆmser-ç»“æœ
 		const std::vector<cv::Point>& r = charContours[i];
 		for (int j = 0; j < (int)r.size(); j++)
 		{
@@ -419,256 +401,27 @@ Mat mserFeature(cv::Mat srcImage)
 			mserNegMapMat.at<unsigned char>(pt) = 255;
 		}
 	}
-	// mser½á¹ûÊä³ö
+	// mserç»“æœè¾“å‡º
 	cv::Mat mserResMat;
-	// mser+Óëmser-Î»Óë²Ù×÷
+	// mser+ä¸mser-ä½ä¸æ“ä½œ
 	mserResMat = mserMapMat & mserNegMapMat;
 	cv::imshow("mserMapMat", mserMapMat);
 	cv::imshow("mserNegMapMat", mserNegMapMat);
 	cv::imshow("mserResMat", mserResMat);
-	// ±Õ²Ù×÷Á¬½Ó·ìÏ¶
+	// é—­æ“ä½œè¿æ¥ç¼éš™
 	cv::Mat mserClosedMat;
 	cv::morphologyEx(mserResMat, mserClosedMat,
 		cv::MORPH_CLOSE, cv::Mat::ones(1, 1, CV_8UC1));
 	return mserClosedMat;
 }
-/*
-void ann_train(Mat trainData,Mat trainLabels,int iter)
-{
-	Ptr<ANN_MLP> bp = ANN_MLP::create();
-	Mat samples;
-	trainData.convertTo(samples, CV_32F);
-	cv::Mat train_classes =
-		cv::Mat::zeros((int)trainLabels.rows, class_num, CV_32F);
-	cout << "converting data" << endl;
-	for (int i = 0; i < train_classes.rows; ++i) {
-		int tk = trainLabels.at<float>(i, 0);
-		train_classes.at<float>(i, tk) = 1.f;
-	}
 
-	if (train_bool == 1)
-	{
-		Mat layerSizes = (Mat_<int>(1, 3) << image_rows*image_cols, 
-			int(image_rows*image_cols / 2), class_num);
-		bp->setLayerSizes(layerSizes);
-		bp->setActivationFunction(cv::ml::ANN_MLP::SIGMOID_SYM, 1, 1);
-		bp->setTrainMethod(cv::ml::ANN_MLP::TrainingMethods::BACKPROP);
-		bp->setTermCriteria(cvTermCriteria(CV_TERMCRIT_ITER, iter, 0.0001));
-		bp->setBackpropWeightScale(0.1);
-		bp->setBackpropMomentumScale(0.1);
-		Ptr<TrainData> tdata = TrainData::create(samples, 
-		cv::ml::SampleTypes::ROW_SAMPLE,train_classes);
-		cout << "Training ANN model, please wait..." << endl;
-		bp->train(tdata);
-		//long end = getTimestamp();
-		cout << "Completed!" << endl;
-		bp->save(ann_xml);
-	}
-
-	//system("pause");
-	if (test_bool == 1)
-	{
-		bp = ml::ANN_MLP::load<ml::ANN_MLP>(ann_xml);
-		cv::Mat output((int)trainLabels.rows, class_num, CV_32F);
-
-		bp->predict(samples, output);
-		
-		float acc = 0;
-		for (int i = 0; i < trainLabels.rows; i++)
-		{
-			
-			int jud=-1, rea=-1;
-			float judv = -INT_MAX, reav = -INT_MAX;
-			for (int j = 0; j < class_num; j++)
-			{
-				if (output.at<float>(i, j) > judv)
-				{
-					jud = j;
-					judv = output.at<float>(i, j);
-					
-				}
-				if (train_classes.at<float>(i, j) > reav)
-				{
-					rea = j;
-					reav = train_classes.at<float>(i, j);
-				}
-				cout << judv << "::" << train_classes.at<float>(i, j) << "!!";
-				
-			}
-			//if (rea == 2)system("pause");
-			cout << endl;
-			if (jud == rea)acc = acc + 1;
-		}
-		float rate = acc / trainLabels.rows;
-		cout << "acc=" << acc << " rate="<<rate<<endl;
-		//for (int i = 0; i < 400; i++)cout << samples.at<float>(0, i); cout << endl;
-	}
-
-}
-*/
-/*
-void data_oga(string path,int select)
-{
-	cout << path << endl;
-	Mat img = imread(path, CV_GRAY2BGR);
-	resize(img, img, Size(20, 20), 0, 0, CV_INTER_LINEAR);
-	cvtColor(img, img, CV_BGR2GRAY);
-	threshold(img, img, 130, 255, THRESH_BINARY);
-	//cvtColor(img,img,gray)
-	//imshow("ori", img);
-	//waitKey(0);
-	int ROWS = img.rows, COLS = img.cols;
-
-	for (int i = 0; i<ROWS; i++)
-	{
-		for (int j = 0; j<COLS; j++)
-		{
-			//printf("i=%d,j=%d,data=%d\n", i, j, img.data[i, j]);
-			int tk = img.data[i, j] > 0 ? 1 : 0;
-			if (select == 1)fprintf(fp1, "%d ", tk);
-			if (select == 2)fprintf(fp2, "%d ", tk);
-		}
-	}
-	if (select == 1)fprintf(fp1, "\n");
-	if (select == 2)fprintf(fp2, "\n");
-	img.release();
-}
-int LoadData(string fileName, cv::Mat& matData, int matRows = 0, int matCols = 0, int matChns = 0)
-{
-	int retVal = 0;
-
-	// ´ò¿ªÎÄ¼ş  
-	ifstream inFile(fileName.c_str(), ios_base::in);
-	if (!inFile.is_open())
-	{
-		cout << "¶ÁÈ¡ÎÄ¼şÊ§°Ü" << endl;
-		retVal = -1;
-		return (retVal);
-	}
-
-	// ÔØÈëÊı¾İ  
-	istream_iterator<float> begin(inFile);    //°´ float ¸ñÊ½È¡ÎÄ¼şÊı¾İÁ÷µÄÆğÊ¼Ö¸Õë  
-	istream_iterator<float> end;          //È¡ÎÄ¼şÁ÷µÄÖÕÖ¹Î»ÖÃ  
-	vector<float> inData(begin, end);      //½«ÎÄ¼şÊı¾İ±£´æÖÁ vector ÖĞ  
-	cv::Mat tmpMat = cv::Mat(inData);       //½«Êı¾İÓÉ vector ×ª»»Îª cv::Mat  
-	
-											// Êä³öµ½ÃüÁîĞĞ´°¿Ú  
-											//copy(vec.begin(),vec.end(),ostream_iterator<double>(cout,"\t"));   
-
-											// ¼ì²éÉè¶¨µÄ¾ØÕó³ß´çºÍÍ¨µÀÊı  
-	size_t dataLength = inData.size();
-	//1.Í¨µÀÊı  
-	if (matChns == 0)
-	{
-		matChns = 1;
-	}
-	//2.ĞĞÁĞÊı  
-	if (matRows != 0 && matCols == 0)
-	{
-		matCols = dataLength / matChns / matRows;
-	}
-	else if (matCols != 0 && matRows == 0)
-	{
-		matRows = dataLength / matChns / matCols;
-	}
-	else if (matCols == 0 && matRows == 0)
-	{
-		matRows = dataLength / matChns;
-		matCols = 1;
-	}
-	//3.Êı¾İ×Ü³¤¶È  
-	if (dataLength != (matRows * matCols * matChns))
-	{
-		cout << "¶ÁÈëµÄÊı¾İ³¤¶È ²»Âú×ã Éè¶¨µÄ¾ØÕó³ß´çÓëÍ¨µÀÊıÒªÇó£¬½«°´Ä¬ÈÏ·½Ê½Êä³ö¾ØÕó£¡" << endl;
-		retVal = 1;
-		matChns = 1;
-		matRows = dataLength;
-	}
-
-	// ½«ÎÄ¼şÊı¾İ±£´æÖÁÊä³ö¾ØÕó  
-	matData = tmpMat.reshape(matChns, matRows).clone();
-
-	return (retVal);
-}
-*/
 string num2str(double i)
 {
 	stringstream ss;
 	ss << i;
 	return ss.str();
 }
-/*
-void train_model()
-{
-	test_bool = 1, train_bool = 0;
-	Mat Data, Labels;
-	if (train_bool == 1)
-	{
-		cout << "loading data...." << endl;
-		LoadData(path_data_labels, Labels, 7033, 1, 0);
-		LoadData(path_data, Data, 7033, 400, 0);
-	}
-	else
-	{
-		cout << "loading data...." << endl;
-		LoadData(path_data_labels_test, Labels, 1900, 1, 0);
-		LoadData(path_data_test, Data, 1900, 400, 0);
-	}
 
-	//cout<<trainingData.data[]
-
-	cout << "loading completed! Start training" << endl;
-	ann_train(Data, Labels, 1500);
-	cout << "training complete" << endl;
-}
-*/
-/*
-void oga_data_dig_chi()
-{
-	string data_set;
-	char *train_data=NULL, *test_data=NULL;
-	int mod = 3;
-	if (mod == 1)
-	{
-		data_set = path_dig_folder;
-		train_data = train_dig_path;
-		test_data = test_dig_path;
-	}
-	if(mod==2)
-	{
-		data_set = path_chi_folder;
-		train_data = train_chi_path;
-		test_data = test_chi_path;
-	}
-	if (mod == 3)
-	{
-		data_set = chaos_path;
-		train_data = train_chaos_path;
-		test_data = test_chaos_path;
-	}
-
-	string exten = "*";
-	bool addPath = true; //false  
-
-						 // ±éÀúÖ¸¶¨ÎÄ¼ş¼ĞÏÂµÄËùÓĞÎÄ¼ş£¬°üÀ¨Ö¸¶¨ÎÄ¼ş¼ĞÄÚµÄÎÄ¼ş¼Ğ  
-	vector<string> allfilenames = GetListFilesR(data_set, exten, addPath);
-
-	cout << "all file names: " << endl;
-
-	cout << allfilenames.size() << endl;
-
-	system("pause");
-	fp1 = fopen(train_data, "w");
-	fp2 = fopen(test_data, "w");
-	for (int i = 0; i < allfilenames.size(); i++)
-		data_oga(allfilenames[i], i % 5 == 0 ? 1 : 2);
-	//cout << "    " << allfilenames[i] << endl;
-
-	fclose(fp1);
-	fclose(fp2);
-
-}
-*/
 Mat extractSobelFeature(Mat img)
 {
 	Mat img_loca;
