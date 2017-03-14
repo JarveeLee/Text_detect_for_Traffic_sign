@@ -10,12 +10,11 @@
 #include <opencv2/opencv.hpp>
 #include<stdlib.h>
 #include<stdio.h>
-#include <windows.h>
 using namespace std;
 using namespace cv;
 using namespace cv::ml;
 
-int test_bool = 1,train_bool=0;
+int test_bool = 1, train_bool = 0;
 //Mat DataMat, labelsMat,testMat;
 int image_rows = 20, image_cols = 20, class_num = 2;
 Ptr<SVM> model = SVM::create();
@@ -24,100 +23,13 @@ FILE* fp;
 FILE* fp1;
 FILE* fp2;
 
-
-
-std::vector<std::string> GetListFiles(const std::string& path, const std::string & exten, bool addPath)
-{
-	std::vector<std::string> list;
-	list.clear();
-	std::string path_f = path + "/" + exten;
-	WIN32_FIND_DATAA FindFileData;
-	HANDLE hFind;
-
-	hFind = FindFirstFileA((LPCSTR)path_f.c_str(), &FindFileData);
-	if (hFind == INVALID_HANDLE_VALUE) {
-		return list;
-	}
-	else {
-		do {
-			if (FindFileData.dwFileAttributes == FILE_ATTRIBUTE_NORMAL ||
-				FindFileData.dwFileAttributes == FILE_ATTRIBUTE_ARCHIVE ||
-				FindFileData.dwFileAttributes == FILE_ATTRIBUTE_HIDDEN ||
-				FindFileData.dwFileAttributes == FILE_ATTRIBUTE_SYSTEM ||
-				FindFileData.dwFileAttributes == FILE_ATTRIBUTE_READONLY) {
-				char* fname;
-				fname = FindFileData.cFileName;
-
-				if (addPath) {
-					list.push_back(path + "/" + std::string(fname));
-				}
-				else {
-					list.push_back(std::string(fname));
-				}
-			}
-		} while (FindNextFileA(hFind, &FindFileData));
-
-		FindClose(hFind);
-	}
-
-	return list;
-}
-std::vector<std::string> GetListFolders(const std::string& path, const std::string & exten, bool addPath)
-{
-	std::vector<std::string> list;
-	std::string path_f = path + "/" + exten;
-	list.clear();
-
-	WIN32_FIND_DATAA FindFileData;
-	HANDLE hFind;
-
-	hFind = FindFirstFileA((LPCSTR)path_f.c_str(), &FindFileData);
-	if (hFind == INVALID_HANDLE_VALUE) {
-		return list;
-	}
-	else {
-		do {
-			if (FindFileData.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY &&
-				strcmp(FindFileData.cFileName, ".") != 0 &&
-				strcmp(FindFileData.cFileName, "..") != 0) {
-				char* fname;
-				fname = FindFileData.cFileName;
-
-				if (addPath) {
-					list.push_back(path + "/" + std::string(fname));
-				}
-				else {
-					list.push_back(std::string(fname));
-				}
-			}
-		} while (FindNextFileA(hFind, &FindFileData));
-
-		FindClose(hFind);
-	}
-
-	return list;
-}
-std::vector<std::string> GetListFilesR(const std::string& path, const std::string & exten, bool addPath)
-{
-	std::vector<std::string> list = GetListFiles(path, exten, addPath);
-	std::vector<std::string> dirs = GetListFolders(path, exten, addPath);
-
-	std::vector<std::string>::const_iterator it;
-	for (it = dirs.begin(); it != dirs.end(); ++it) {
-		std::vector<std::string> cl = GetListFiles(*it, exten, addPath);
-		list.insert(list.end(), cl.begin(), cl.end());
-	}
-
-	return list;
-}
-
 void getHOGFeatures(const Mat& image, Mat& features) {
 	//HOG descripter
-	HOGDescriptor * hog = new HOGDescriptor(cvSize(128, 64), cvSize(16, 16), cvSize(8, 8), cvSize(8, 8), 3);  //these parameters work well
+	HOGDescriptor * hog = new HOGDescriptor(cvSize(32, 32), cvSize(16, 16), cvSize(8, 8), cvSize(8, 8), 3);  //these parameters work well
 	std::vector<float> descriptor;
 
 	// resize input image to (128,64) for compute
-	Size dsize = Size(128, 64);
+	Size dsize = Size(32, 32);
 	Mat trainImg = Mat(dsize, CV_32S);
 	resize(image, trainImg, dsize);
 
@@ -135,7 +47,7 @@ Mat compare_amplify(Mat img)
 	//namedWindow("original");
 	//imshow("original", mat);
 	Mat mergeImg;//合并后的图像  
-			 //用来存储各通道图片的向量  
+				 //用来存储各通道图片的向量  
 	vector<Mat> splitBGR(mat.channels());
 	//分割通道，存储到splitBGR中  
 	split(mat, splitBGR);
@@ -149,7 +61,7 @@ Mat compare_amplify(Mat img)
 	//imshow("equalizeHist", mergeImg);
 	return mergeImg;
 }
-vector<Mat> clustering(Mat src, int ClusterNum,int mod)
+vector<Mat> clustering(Mat src, int ClusterNum, int mod)
 {
 	int row = src.rows;
 	int col = src.cols;
@@ -285,7 +197,7 @@ vector<Mat> clustering(Mat src, int ClusterNum,int mod)
 	if (mod == 1)
 	{
 		//ans.clear();
-		Mat t0=ans[0], t1=ans[1];
+		Mat t0 = ans[0], t1 = ans[1];
 		ans.clear();
 		ans.push_back(label_show);
 		//if (count[0] > count[1])ans.push_back(t0);else ans.push_back(t1);
@@ -294,9 +206,9 @@ vector<Mat> clustering(Mat src, int ClusterNum,int mod)
 }
 void close_GetPlate(Mat srcImage, Mat ori)
 {
-	
+
 	Mat operate;
-	srcImage.convertTo(operate, CV_8UC3,255.0);
+	srcImage.convertTo(operate, CV_8UC3, 255.0);
 	cvtColor(operate, operate, CV_BGR2GRAY); // 转为灰度图像  
 	threshold(operate, operate, 50, 255, CV_THRESH_BINARY);
 	operate = 255 - operate;
@@ -329,17 +241,17 @@ void close_GetPlate(Mat srcImage, Mat ori)
 		//imshow("show", kec(rect));
 		namedWindow("ori", CV_WINDOW_AUTOSIZE);
 		imshow("ori", ori(rect));
-		
+
 		//judge_which(kec(rect));
 		int c = waitKey(0);
-		if (c -48==1)
+		if (c - 48 == 1)
 		{
 
 		}
-		if (c-48==0)
+		if (c - 48 == 0)
 		{
 			destroyWindow("ori");
-			return ;
+			return;
 		}
 		destroyWindow("ori");
 	}
@@ -348,7 +260,7 @@ void close_GetPlate(Mat srcImage, Mat ori)
 }
 Mat mserFeature(cv::Mat srcImage)
 {
-	
+
 	// HSV空间转换
 	cv::Mat gray, gray_neg;
 	cv::Mat hsi;
@@ -414,20 +326,18 @@ Mat mserFeature(cv::Mat srcImage)
 		cv::MORPH_CLOSE, cv::Mat::ones(1, 1, CV_8UC1));
 	return mserClosedMat;
 }
-
 string num2str(double i)
 {
 	stringstream ss;
 	ss << i;
 	return ss.str();
 }
-
 Mat extractSobelFeature(Mat img)
 {
 	Mat img_loca;
-	Mat ampli= compare_amplify(img);
+	Mat ampli = compare_amplify(img);
 	getHOGFeatures(ampli, img_loca);
-	img_loca=img_loca.reshape(1, 1);
+	img_loca = img_loca.reshape(1, 1);
 	//imshow("ori", img);
 	//imshow("ampli", ampli);
 	//imshow("HOG", img_loca);
@@ -440,8 +350,8 @@ Mat extractSobelFeature(Mat img)
 	resize(img_loca, img_loca, Size(32, 32));
 	int m_GaussianBlurSize = 3, binary_thres = 78;
 	Mat img_blur, img_gray;
-	GaussianBlur(img_loca, img_blur, 
-		Size(m_GaussianBlurSize, m_GaussianBlurSize),0, 0, BORDER_DEFAULT);
+	GaussianBlur(img_loca, img_blur,
+		Size(m_GaussianBlurSize, m_GaussianBlurSize), 0, 0, BORDER_DEFAULT);
 	//imshow("ori", img);
 	//imshow("img_loca", img_loca);
 	//imshow("img_blur", img_blur);
@@ -463,8 +373,8 @@ Mat extractSobelFeature(Mat img)
 	for (int i = 0; i < dir_num; i++)
 	{
 		double kt = i / dir_num;
-		Sobel(img_gray, grad[i*2], CV_8U, 1-kt, kt, 3, BORDER_DEFAULT);
-		Sobel(img_gray, grad[i * 2+1], CV_8U, kt, 1-kt, 3, BORDER_DEFAULT);
+		Sobel(img_gray, grad[i * 2], CV_8U, 1 - kt, kt, 3, BORDER_DEFAULT);
+		Sobel(img_gray, grad[i * 2 + 1], CV_8U, kt, 1 - kt, 3, BORDER_DEFAULT);
 		//imshow("grad1", grad[i * 2]);
 		//imshow("grad2", grad[i * 2 + 1]);
 		//waitKey(0);
@@ -473,16 +383,16 @@ Mat extractSobelFeature(Mat img)
 		//convertScaleAbs(grad[i*2], grad[i*2]); 
 		//convertScaleAbs(grad[i * 2+1], grad[i * 2+1]);
 		//imshow(num2str(i), grad[i]);
-		merge.push_back(grad[i*2]);
-		merge.push_back(grad[i * 2+1]);
+		merge.push_back(grad[i * 2]);
+		merge.push_back(grad[i * 2 + 1]);
 		//if(i==0)merge =  grad[i*2]|grad[i*2+1]; 
 		//else merge = merge | grad[i * 2] | grad[i * 2+1];
-		
+
 	}
 	//imshow("merge", merge);
 	//waitKey(0);
 	Mat sample;
-	merge.reshape(1, 1).convertTo(sample,CV_32F);
+	merge.reshape(1, 1).convertTo(sample, CV_32F);
 	return sample;
 }
 
@@ -493,22 +403,22 @@ void svm_data_collect()
 	float posi = 1.0, neg = -1.0;
 	int rrrrt = 1;
 	//int train_has=114741 ,train_no= 136374,test_has=390,test_no= 40731;
-	int train_has = 12000, train_no = 12000, test_has = 390, test_no = 5000;
-	int train_has_num = 11837, train_no_num = 261265, 
+	int train_has = 50, train_no = 50, test_has = 390, test_no = 5000;
+	int train_has_num = 11837, train_no_num = 261265,
 		test_has_num = 390, test_no_num = 40731;
 	cout << "Input train_num" << endl;
 	//cin >> train_num;
 	//train_num = 500;
-	
+
 	Mat trainingImage;
 	vector<int> trainingLabels;
-	string filepath = head+"train/found";
+	string filepath = head + "train/found";
 	vector<string> allfilenames;
-	
+
 	//allfilenames = getFiles(filepath,true);
 	//cout << "all file names: " << endl;
 	//cout << allfilenames.size() << endl;
-	
+
 	for (int i = 0; i < train_has; i++)
 	{
 		string temp;
@@ -519,7 +429,7 @@ void svm_data_collect()
 	for (int i = 0; i < allfilenames.size(); i++)
 	{
 		//cout << temp<<endl;
-		Mat img = imread(allfilenames[i],1);
+		Mat img = imread(allfilenames[i], 1);
 		//imshow("img_ori", img);
 		img = extractSobelFeature(img);
 		trainingImage.push_back(img);
@@ -537,7 +447,7 @@ void svm_data_collect()
 	//std::random_shuffle(allfilenames.begin(), allfilenames.end());
 	for (int i = 0; i < allfilenames.size(); i++)
 	{
-		Mat img = imread(allfilenames[i],1);
+		Mat img = imread(allfilenames[i], 1);
 		img = extractSobelFeature(img);
 		trainingImage.push_back(img);
 		trainingLabels.push_back(neg);
@@ -548,7 +458,7 @@ void svm_data_collect()
 	Mat(trainingImage).copyTo(trainingData);
 	trainingData.convertTo(trainingData, CV_32F);
 	Mat(trainingLabels).copyTo(classes);
-	
+
 	/*
 	Mat trainingData,classes;
 	Mat trainMat = imread(head + "trainMat.jpg", CV_32FC1);
@@ -566,9 +476,9 @@ void svm_data_collect()
 	//Training setting----------------------------------------------------------------------------
 	//Ptr<SVM> model = SVM::create();
 	//Ptr<ANN_MLP> bp = ANN_MLP::create();
-	
-	int train_mod = 1;//1 SVM 2 ANN
-	
+
+	int train_mod = 2;//1 SVM 2 ANN
+
 	if (train_mod == 1)
 	{
 		//Ptr<SVM> model=StatModel::load<SVM>("E:/grade3/baidu_pic/train/svm/valid/svm.xml");
@@ -576,23 +486,23 @@ void svm_data_collect()
 		model->setKernel(cv::ml::SVM::RBF);
 		model->setDegree(0.1);
 		// 1.4 bug fix: old 1.4 ver gamma is 1
-		model->setGamma(0.1);
+		model->setGamma(0.5);
 		model->setCoef0(0.1);
 		model->setC(1);
 		model->setNu(0.1);
 		model->setP(0.1);
 		model->setTermCriteria(cvTermCriteria(CV_TERMCRIT_ITER, 20000, 0.0001));
 		//model->SVM::load<SVM>("E:/grade3/baidu_pic/train/svm/valid/svm.xml");
-		Ptr<TrainData> tdata=TrainData::create(trainingData, ROW_SAMPLE, classes);
+		Ptr<TrainData> tdata = TrainData::create(trainingData, ROW_SAMPLE, classes);
 		cout << "training please wait" << endl;
 		model->train(tdata);
-		
+
 	}
-	
+
 	if (train_mod == 2)
 	{
 		cout << "converting data" << endl;
-		Mat samples(trainingData.rows,trainingData.cols,CV_32F);
+		Mat samples(trainingData.rows, trainingData.cols, CV_32F);
 		for (int i = 0; i < samples.rows; i++)
 		{
 			for (int j = 0; j < samples.cols; j++)
@@ -602,17 +512,17 @@ void svm_data_collect()
 		}
 		//Mat(trainingImage).convertTo(samples, CV_32FC1,1.0/255.0);
 		Mat train_classes =
-			Mat::zeros((int)classes.rows, 2, CV_32FC1);
-		for (int i = 0; i < train_classes.rows; ++i) 
+			Mat::zeros((int)classes.rows, 2, CV_32F);
+		for (int i = 0; i < train_classes.rows; ++i)
 		{
-			int tk = classes.at<int>(i, 0) > 0 ? 1:0 ;
+			int tk = classes.at<int>(i, 0) > 0 ? 1 : 0;
 			train_classes.at<float>(i, tk) = 1.f;
 		}
-		cout << train_classes << endl 
+		cout << train_classes << endl
 			<< train_classes.cols << " " << train_classes.rows << endl;
-		system("pause");
-		cout << trainingData.cols<<" "<<trainingData.rows<< endl;
-		system("pause");
+		//system("pause");
+		cout << trainingData.cols << " " << trainingData.rows << endl;
+		//system("pause");
 		Ptr<TrainData> tdata = TrainData::create(samples,
 			ROW_SAMPLE, train_classes);
 		Mat layer_sizes1(1, 3, CV_32SC1);
@@ -621,7 +531,8 @@ void svm_data_collect()
 		layer_sizes1.at<int>(2) = 2;
 		bp->setLayerSizes(layer_sizes1);
 		bp->setActivationFunction(ANN_MLP::SIGMOID_SYM, 1, 1);
-		bp->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER + TermCriteria::EPS, 3, FLT_EPSILON));
+		bp->setTermCriteria(TermCriteria
+			(TermCriteria::MAX_ITER + TermCriteria::EPS, 300, FLT_EPSILON));
 		bp->setTrainMethod(ANN_MLP::BACKPROP, 0.001);
 		cout << "Training ANN model, please wait..." << endl;
 		bp->train(tdata);
@@ -637,32 +548,32 @@ void svm_data_collect()
 	{
 		Mat sampleMat = trainingData.rowRange(i, i + 1).clone();
 		float response;
-		if (train_mod==1)response = model->predict(sampleMat);
+		if (train_mod == 1)response = model->predict(sampleMat);
 		if (train_mod == 2)
 		{
 			Mat output((int)1, 2, CV_32F);
 			bp->predict(sampleMat, output);
-			response=output.at<float>(0, 0) > output.at<float>(0, 1) ? -1.0 : 1.0;
+			response = output.at<float>(0, 0) > output.at<float>(0, 1) ? -1.0 : 1.0;
 		}
 		//cout << response << " " << classes.at<int>(i,0)<< endl;
-		if (response == posi && classes.at<int>(i, 0) ==posi)
+		if (response == posi && classes.at<int>(i, 0) == posi)
 		{
 			pt_rt = pt_rt + 1.0;
 		}
-		if (response ==neg && classes.at<int>(i, 0) == posi)
+		if (response == neg && classes.at<int>(i, 0) == posi)
 		{
 			pf_rt = pf_rt + 1.0;
 		}
-		if (response ==posi && classes.at<int>(i, 0) == neg)
+		if (response == posi && classes.at<int>(i, 0) == neg)
 		{
 			pt_rf = pt_rf + 1.0;
 		}
 	}
 	precision = pt_rt / (pt_rt + pt_rf);
-	recall= pt_rt / (pt_rt + pf_rt);
+	recall = pt_rt / (pt_rt + pf_rt);
 	f1_score = 2 * precision*recall / (precision + recall);
-	cout << "Training Set:"<<"Precision="<<precision << " Recall=" << recall<<
-		" F1_score="<< f1_score<< endl;
+	cout << "Training Set:" << "Precision=" << precision << " Recall=" << recall <<
+		" F1_score=" << f1_score << endl;
 	trainingData.release();
 	classes.release();
 	allfilenames.clear();
@@ -671,7 +582,7 @@ void svm_data_collect()
 	cout << "Loading test data" << endl;
 	Mat testImage;
 	vector<int> testLabels;
-	filepath = head + "test/has"; 
+	filepath = head + "test/has";
 	for (int i = 0; i < test_has; i++)
 	{
 		string temp;
@@ -697,7 +608,7 @@ void svm_data_collect()
 	}
 	for (int i = 0; i < allfilenames.size(); i++)
 	{
-		Mat img = imread(allfilenames[i],1);
+		Mat img = imread(allfilenames[i], 1);
 		img = extractSobelFeature(img);
 		testImage.push_back(img);
 		testLabels.push_back(neg);
@@ -727,11 +638,11 @@ void svm_data_collect()
 		{
 			pt_rt = pt_rt + 1.0;
 		}
-		if (response ==neg && test_classes.at<int>(i, 0) == posi)
+		if (response == neg && test_classes.at<int>(i, 0) == posi)
 		{
 			pf_rt = pf_rt + 1.0;
 		}
-		if (response ==posi && test_classes.at<int>(i, 0) == neg)
+		if (response == posi && test_classes.at<int>(i, 0) == neg)
 		{
 			pt_rf = pt_rf + 1.0;
 		}
@@ -741,10 +652,11 @@ void svm_data_collect()
 	f1_score = 2 * precision*recall / (precision + recall);
 	cout << "Testing Set:" << "Precision=" << precision << " Recall=" << recall <<
 		" F1_score=" << f1_score << endl;
-	model->save(head+"/svm.xml");
+	if (train_mod == 1)model->save(head + "/svm.xml");
+	if (train_mod == 2)bp->save(head + "/ann.xml");
 	system("pause");
 }
-
+/*
 void plate_split()
 {
 
@@ -756,34 +668,34 @@ void plate_split()
 	{
 		string filename = allfile[i];
 		Mat img = imread(filename, 1);
-		string save_path = "E:/grade3/baidu_pic/train/svm/valid/test/has/"+num2str(i)+".jpg";
+		string save_path = "E:/grade3/baidu_pic/train/svm/valid/test/has/" + num2str(i) + ".jpg";
 		imwrite(save_path, img);
 		continue;
 		Mat temp = img.clone();
-		/*
+		
 		int  areaa = img.cols*img.rows;
 		if ( areaa> 4000)
 		{
-			string save_path = "E:/grade3/baidu_pic/plate/valid/" + num2str(ite) + ".jpg";
-			imwrite(save_path, img);
-			cout << ite++ << " " << areaa << endl;
-			continue;
+		string save_path = "E:/grade3/baidu_pic/plate/valid/" + num2str(ite) + ".jpg";
+		imwrite(save_path, img);
+		cout << ite++ << " " << areaa << endl;
+		continue;
 		}
 		else
 		{
-			continue;
+		continue;
 		}
-		*/
-		GaussianBlur(img, img, Size(5, 5),5);
+		
+		GaussianBlur(img, img, Size(5, 5), 5);
 		imshow("ori_pic", temp);
 		img.convertTo(img, CV_32FC3);
-		vector<Mat>pic = clustering(img, 6,0);
+		vector<Mat>pic = clustering(img, 6, 0);
 		for (int j = 0; j < pic.size(); j++)
 		{
 			close_GetPlate(pic[j], temp);
 		}
 	}
-	
+
 }
 
 void fp_char_cap()
@@ -794,7 +706,7 @@ void fp_char_cap()
 	string temp_path;
 	vector<Rect> rect_list;
 	Mat img;
-	int top, left, down, width, height,num_pic=0,num_rect = 0;
+	int top, left, down, width, height, num_pic = 0, num_rect = 0;
 	double ratio = 0.0;
 	while (fscanf(fp, "%s", temp) != EOF)
 	{
@@ -816,7 +728,7 @@ void fp_char_cap()
 		{
 			fscanf(fp, " top='%d' left='%d' width='%d' height='%d'/>\n",
 				&top, &left, &width, &height);
-			
+
 			//top = img.rows - top;
 			//cout << img.cols << " " << img.rows << endl;
 			if (top + height> img.rows)
@@ -850,9 +762,9 @@ void fp_char_cap()
 				resize(img(rect_list[i]), save_pic, Size(32, 32));
 				imwrite(temp, save_pic);
 			}
-			
+
 			//num_rect += rect_list.size();
-			
+
 			rect_list.clear();
 			temp_path.clear();
 			//waitKey(0);
@@ -864,10 +776,10 @@ void fp_char_cap()
 	fclose(fp);
 	system("pause");
 }
-
-int main(int argc, const char* argv[]) 
+*/
+int main(int argc, const char* argv[])
 {
-	
+
 	//oga_data_dig_chi();
 	//imshow("1", img);
 	//waitKey(0);
@@ -882,15 +794,15 @@ int main(int argc, const char* argv[])
 	int replica = 100;
 	for (int i = 0; i < 1880; i++)
 	{
-		string tk = pa + num2str(i) + ".jpg";
-		Mat img = imread(tk, 1);
-		//for (int jk = 1; jk <= replica; jk++)
-		//{
-			string temp = "E:/grade3/baidu_pic/plate/qualified/train/found/" + num2str(i+1440) + ".jpg";
-			resize(img, img, Size(32, 32));
-			imwrite(temp, img);
-		//}
-		cout << i << endl;
+	string tk = pa + num2str(i) + ".jpg";
+	Mat img = imread(tk, 1);
+	//for (int jk = 1; jk <= replica; jk++)
+	//{
+	string temp = "E:/grade3/baidu_pic/plate/qualified/train/found/" + num2str(i+1440) + ".jpg";
+	resize(img, img, Size(32, 32));
+	imwrite(temp, img);
+	//}
+	cout << i << endl;
 	}
 	*/
 	system("pause");
