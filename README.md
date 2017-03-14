@@ -36,3 +36,5 @@ top='104' left='31' width='12' height='11'
 #Do you think it is easy?Ah I believe it as well
 
 And this easy algorithm can get 85% pitches coverage(the result of connect_pix).But the performance of SVM is very bad,recall 84 but precision 0.03 .I just store code here in case of PC crashing.....
+
+#If you want to run the code ,remember to change lots of absolute path by your own.
