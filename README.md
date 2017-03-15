@@ -22,12 +22,17 @@ I have to admit that these code are bad arranged.So I must briefly explain it.
 
 ## SVM_train.cpp run in this order:
 
-1,You need a data.txt file to get img data and rect data with in which contains exact one char.
+1,You need a Rect_list.txt file to get img data and rect data with in which contains exact one char.
+
+Reading process is written in Process_d() function.
+
 For example 
 
-file='E:\grade3\baidu_pic\plate\qualified\train\1.jpg'
+file='E:\grade3\baidu_pic\plate\qualified\train\sample.jpg'
 
 top='104' left='31' width='12' height='11'
+
+this rect stands for a part of this pic.
 
 2,Pre run the Baidu.cpp, the pitches which are not in the labeled rect above are regarded as negative data.
 
