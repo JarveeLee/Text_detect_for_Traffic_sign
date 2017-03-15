@@ -10,6 +10,8 @@ Data provided by Baidu.
 
 The SVM_train is to train the SVM which is used in Baidu_process.
 
+The label tool is used to label your own data set.
+
 These code can be run on VS2015+OPENCV 3.1+win10,that is my own enviroment.
 
 I have to admit that these code are bad arranged.So I must briefly explain it.
