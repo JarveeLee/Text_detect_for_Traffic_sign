@@ -38,12 +38,16 @@ char.
 in main.cpp...
 
 string data_path = "/home/cpdp/lijiahui/svm/img/";
+
 string caffe_path = "/home/cpdp/lijiahui/caffe/caffe-master/data/myself/";
+
 char * label_path = "/home/cpdp/lijiahui/svm/img/label.txt";
+
 char * train_txt = "/home/cpdp/lijiahui/caffe/caffe-master/data/myself/train.txt";
+
 char * test_txt = "/home/cpdp/lijiahui/caffe/caffe-master/data/myself/val.txt";
 
-and this command to call your own caffe prediction process.
+and this command to call your own caffe prediction API process.
 
 string command = "/home/cpdp/lijiahui/caffe/caffe-master/build/examples/cpp_classification/classification1.bin \
   /home/cpdp/lijiahui/caffe/caffe-master/data/myself/deploy.prototxt \
